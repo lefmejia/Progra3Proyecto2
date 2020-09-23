@@ -298,7 +298,7 @@ Matriz Matriz::multiplicacion(Matriz m2)
 	return sol;
 }
 
-/*int Matriz::determinante()
+int Matriz::determinante()
 {
 	int det=0;
 
@@ -311,6 +311,8 @@ Matriz Matriz::multiplicacion(Matriz m2)
 	{
 		
 		Nodo* actual = primero;
+		Nodo* filaActual = primero;
+		Nodo* columnaActual = filaActual;
 		Nodo* actual2 = primero;
 
 		while (actual2->getDerecho() != nullptr) {
@@ -322,144 +324,52 @@ Matriz Matriz::multiplicacion(Matriz m2)
 		for (int i = 0; i < this->filas;i++)
 		{
 			Matriz aux;
+			aux.primero = nullptr;
 			int j = 0;
 			actual = primero;
-			while (actual != nullptr)
+			filaActual = primero;
+			columnaActual = filaActual;
+			while (filaActual != nullptr)
 			{
-				while (actual->getDerecho() != nullptr)
+				columnaActual = filaActual;
+				while (columnaActual->getDerecho() != nullptr)
 				{
-					//if (actual == nullptr)
-					//	break;
 					if (i == j && salto)
 					{
-						actual = actual->getAbajo();
+						filaActual = filaActual->getAbajo();
+						columnaActual = filaActual;
 						salto = false;
 					}
-					if (actual == nullptr)
+					if (columnaActual == nullptr)
 						break;
 					if (nuevaFila) {
-						aux.agregarAbajo(0, actual->getValor());
-						aux.sumarFila(1);
+						aux.agregarAbajo(0, columnaActual->getValor());
+						
 						nuevaFila = false;
 					}
 					else {
-						aux.agregarDerecho(0, actual->getValor());
-						aux.sumarColumna(1);
+						aux.agregarDerecho(0, columnaActual->getValor());
+						
 					}
-					
-					actual = actual->getDerecho();
+					columnaActual = columnaActual->getDerecho();
 				}
-				//if (actual != nullptr) {
-					//j++;
-					salto = true;
-					actual = primero;
-					for (int k = 0;k <= cont;k++) {
-						//if(actual!=nullptr)
-							actual = actual->getAbajo();
-					}
-					//actual = actual->getAbajo();
-					
-				//}
-				nuevaFila = true;
+				if (filaActual != nullptr) {
+					filaActual = filaActual->getAbajo();
+					nuevaFila = true;
+				}
+				j++;
+				salto = true;
 			}
 			j = 0;
-			//if(actual!=nullptr)
-				aux.enlazar();
+			aux.filas = this->filas - 1;
+			aux.columnas = this->columnas - 1;
+			aux.enlazar();
 			det += pow(-1, columnas + (i + 1)) * actual2->getValor() * aux.determinante();
 			actual2 = actual2->getAbajo();
 		}
 	}
 
 	return det;
-}
-*/
-
-int Matriz::determinante()
-{
-	int** arr;
-	int n = filas;
-	arr = new int*[n];
-
-	for (int i = 0;i < n;i++)
-		arr[i] = new int[n];
-
-	Nodo* columnaActual;
-	Nodo* filaActual = primero;
-	int i = 0;
-	int j = 0;
-	while (filaActual != nullptr)
-	{
-		columnaActual = filaActual;
-		while (columnaActual != nullptr)
-		{
-			arr[i][j]= columnaActual->getValor();
-			columnaActual = columnaActual->getDerecho();
-			j++;
-		}
-		j = 0;
-		filaActual = filaActual->getAbajo();
-		i++;
-
-	}
-
-	return determinar(arr,n);
-}
-
-void Matriz::getCofactor(int**mat, int** temp, int p, int q, int n)
-{
-	int i = 0, j = 0;
-
-	// Looping for each element of the matrix 
-	for (int row = 0; row < n; row++)
-	{
-		for (int col = 0; col < n; col++)
-		{
-			//  Copying into temporary matrix only those element 
-			//  which are not in given row and column 
-			if (row != p && col != q)
-			{
-				temp[i][j++] = mat[row][col];
-
-				// Row is filled, so increase row index and 
-				// reset col index 
-				if (j == n - 1)
-				{
-					j = 0;
-					i++;
-				}
-			}
-		}
-	}
-}
-
-int Matriz::determinar(int** mat, int n)
-{
-	int D = 0; // Initialize result 
-
-	//  Base case : if matrix contains single element 
-	if (n == 1)
-		return mat[0][0];
-
-	int** temp; // To store cofactors 
-	int m = filas;
-	temp = new int* [m];
-
-	for (int i = 0;i < m;i++)
-		temp[i] = new int[m];
-	int sign = 1;  // To store sign multiplier 
-
-	 // Iterate for each element of first row 
-	for (int f = 0; f < n; f++)
-	{
-		// Getting Cofactor of mat[0][f] 
-		getCofactor(mat, temp, 0, f, n);
-		D += sign * mat[0][f] * determinar(temp, n - 1);
-
-		// terms are to be added with alternate sign 
-		sign = -sign;
-	}
-
-	return D;
 }
 
 void Matriz::guardarMatriz(System::String^ _nombre)
